@@ -111,6 +111,7 @@ main{max-width:1400px;margin:0 auto;padding:8px 16px 60px}
 .card .thumb{aspect-ratio:4/5;display:grid;place-items:center;overflow:hidden;position:relative}
 .card img{width:100%;height:100%;object-fit:contain;display:block}
 .card .open{position:absolute;right:8px;top:8px;background:var(--accent);color:var(--accent-ink);font-size:12px;font-weight:700;padding:4px 9px;border-radius:999px;opacity:0;transform:translateY(-4px);transition:.15s}
+.card .qty{position:absolute;left:8px;bottom:8px;background:rgba(0,0,0,.72);color:#fff;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px}
 .card:hover .open,.card:focus-visible .open{opacity:1;transform:none}
 .card .meta{padding:10px 12px 12px;display:flex;flex-direction:column;gap:6px;flex:1}
 .card .title{font-size:13px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.7em}
@@ -2149,7 +2150,7 @@ window.NOV_TASKS = [
       if (!cat) { cat = { id: catId, name: catName, brand, dept, items: [] }; dept.categories.push(cat); }
       const item = {
         title: t.name.trim(), href: t.link || `https://app.asana.com/0/0/${t.gid}`, img: t.thumb || '',
-        brand, brandName: brands[brand], dept, cat, note: dayLabel(t.firstReady)
+        brand, brandName: brands[brand], dept, cat, note: dayLabel(t.firstReady), qty: concepts
       };
       cat.items.push(item); dept.items.push(item); items.push(item);
     }
@@ -2177,6 +2178,8 @@ const MONTHS = [
 let month = MONTHS[0];
 let D = month.model;
 const state = { q: '', dept: 'all', brand: 'all' };
+// a card can hold several creatives (e.g. a tweak task with 35 videos): counts add them all up
+const qty = its => its.reduce((a, it) => a + (it.qty || 1), 0);
 const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const heroText = document.getElementById('heroText'), coLogo = document.getElementById('coLogo');
 const fitLogo = () => { coLogo.style.height = heroText.offsetHeight + 'px'; };
@@ -2259,9 +2262,9 @@ function renderControls() {
   brandEl.innerHTML = [['all', 'All brands'], ['RP', '<span class="blogo rp" role="img" aria-label="RealPrize"></span>'], ['LS', '<span class="blogo ls" role="img" aria-label="LoneStar"></span>']]
     .map(([k, l]) => `<button data-k="${k}" aria-pressed="${state.brand === k}">${l}</button>`).join('');
   const deptEl = document.getElementById('depts');
-  const all = D.items.filter(it => matches(it, true)).length;
+  const all = qty(D.items.filter(it => matches(it, true)));
   deptEl.innerHTML = `<button class="chip" data-k="all" aria-pressed="${state.dept === 'all'}">All<span class="n">${all}</span></button>` +
-    D.depts.map(d => `<button class="chip" data-k="${d.id}" aria-pressed="${state.dept === d.id}">${esc(d.name)}<span class="n">${d.items.filter(it => matches(it, true)).length}</span></button>`).join('');
+    D.depts.map(d => `<button class="chip" data-k="${d.id}" aria-pressed="${state.dept === d.id}">${esc(d.name)}<span class="n">${qty(d.items.filter(it => matches(it, true)))}</span></button>`).join('');
 }
 
 // within a department: all videos first, then banners, then everything else;
@@ -2286,10 +2289,10 @@ function render() {
     for (const c of ordered(d)) {
       const its = c.items.filter(it => matches(it));
       if (!its.length) continue;
-      dn += its.length;
-      dh += `<section class="cat"><h3><span class="badge ${c.brand} logo-badge"><span class="wlogo ${c.brand}" role="img" aria-label="${D.brands[c.brand]}"></span></span>${esc(c.name)}<span class="n">· ${its.length}</span></h3><div class="grid">` +
+      dn += qty(its);
+      dh += `<section class="cat"><h3><span class="badge ${c.brand} logo-badge"><span class="wlogo ${c.brand}" role="img" aria-label="${D.brands[c.brand]}"></span></span>${esc(c.name)}<span class="n">· ${qty(its)}</span></h3><div class="grid">` +
         its.map(it => `<a class="card" href="${esc(it.href)}" target="_blank" rel="noopener" title="${esc(it.title)}">
-          <div class="thumb">${it.img ? `<img src="${it.img}" alt="" loading="lazy">` : `<span class="ph">${esc(it.cat.name)}</span>`}<span class="open">Open ↗</span></div>
+          <div class="thumb">${it.img ? `<img src="${it.img}" alt="" loading="lazy">` : `<span class="ph">${esc(it.cat.name)}</span>`}${it.qty > 1 ? `<span class="qty">${it.qty} ${/video|cinemagraph/i.test(it.cat.name) ? 'videos' : 'designs'}</span>` : ''}<span class="open">Open ↗</span></div>
           <div class="meta"><div class="title">${hl(it.title)}</div>
           <div class="foot"><span class="badge ${it.brand}">${it.brand}</span><span>${it.slide ? 'Slide ' + it.slide : esc(it.note || '')}</span></div></div></a>`).join('') +
         `</div></section>`;
@@ -2299,7 +2302,7 @@ function render() {
     html += `<section class="dept"><h2>${esc(d.name)} <small>${dn} shown · ${d.total} new designs this period</small></h2>${dh}</section>`;
   }
   out.innerHTML = html || `<div class="empty"><b>No creatives match</b>Try another word, or clear the brand/department filter.</div>`;
-  document.getElementById('count').textContent = `${total} of ${D.items.length} creatives`;
+  document.getElementById('count').textContent = `${total} of ${qty(D.items)} creatives`;
 }
 
 document.getElementById('brand').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { state.brand = b.dataset.k; render(); } });
