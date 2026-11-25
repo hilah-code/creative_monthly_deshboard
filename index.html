@@ -72,16 +72,17 @@ a{color:var(--accent)}
 .barrow .lane{display:flex;align-items:center;gap:8px}
 .barrow .fill{height:14px;background:var(--accent);border-radius:0 4px 4px 0;min-width:3px}
 .barrow .val{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
-/* UA split into banners / videos / other (categorical slots 1-3, 2px surface gap between segments) */
-:root{--seg-banner:#2a78d6;--seg-video:#eb6834;--seg-other:#1baf7a}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--seg-banner:#3987e5;--seg-video:#d95926;--seg-other:#199e70}}
-:root[data-theme="dark"]{--seg-banner:#3987e5;--seg-video:#d95926;--seg-other:#199e70}
+/* UA split into banners / videos / other: blue, brand purple, light purple; 2px surface gap between segments.
+   Own class name (wseg) - ".seg" is the brand switch and would round the segments */
+:root{--wseg-banner:#2a78d6;--wseg-video:#7030a0;--wseg-other:#c4a1e3}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--wseg-banner:#3987e5;--wseg-video:#8f45c7;--wseg-other:#cfb0ee}}
+:root[data-theme="dark"]{--wseg-banner:#3987e5;--wseg-video:#8f45c7;--wseg-other:#cfb0ee}
 .barrow .fill.stack{display:flex;gap:2px;background:none;border-radius:0}
-.fill.stack .seg{height:100%;min-width:2px}
-.fill.stack .seg:last-child{border-radius:0 4px 4px 0}
-.seg.banner,.mix i.banner{background:var(--seg-banner)}
-.seg.video,.mix i.video{background:var(--seg-video)}
-.seg.other,.mix i.other{background:var(--seg-other)}
+.fill.stack .wseg{height:100%;min-width:2px}
+.fill.stack .wseg:last-child{border-radius:0 4px 4px 0}
+.wseg.banner,.mix i.banner{background:var(--wseg-banner)}
+.wseg.video,.mix i.video{background:var(--wseg-video)}
+.wseg.other,.mix i.other{background:var(--wseg-other)}
 .mixrow{display:grid;grid-template-columns:200px 1fr;gap:12px;padding:0 6px 6px;margin-top:-4px}
 .mix{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
 .mix i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
@@ -2900,7 +2901,7 @@ function renderHeader() {
   bars.innerHTML = byLoad.map(({ d, i }) => {
     const m = d.name === 'UA' ? mix(d) : null;
     const fill = m
-      ? `<span class="fill stack" style="width:${d.total / maxTotal * 85}%">${KINDS.map(([k]) => m[k] ? `<span class="seg ${k}" style="flex:${m[k]}"></span>` : '').join('')}</span>`
+      ? `<span class="fill stack" style="width:${d.total / maxTotal * 85}%">${KINDS.map(([k]) => m[k] ? `<span class="wseg ${k}" style="flex:${m[k]}"></span>` : '').join('')}</span>`
       : `<span class="fill" style="width:${d.total / maxTotal * 85}%"></span>`;
     const legend = m ? `<div class="mixrow"><span></span><span class="mix">${KINDS.map(([k, l]) => `<span><i class="${k}"></i>${l} <b>${m[k]}</b></span>`).join('')}</span></div>` : '';
     return `<div class="barrow" role="listitem" data-i="${i}" aria-label="${esc(d.name)}: ${d.total} new designs, ${pct(d.total)}%${m ? KINDS.map(([k, l]) => `, ${l} ${m[k]}`).join('') : ''}">
