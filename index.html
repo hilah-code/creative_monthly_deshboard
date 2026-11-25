@@ -74,15 +74,16 @@ a{color:var(--accent)}
 .barrow .val{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
 /* UA split into banners / videos / other: blue, brand purple, light purple; 2px surface gap between segments.
    Own class name (wseg) - ".seg" is the brand switch and would round the segments */
-:root{--wseg-banner:#2a78d6;--wseg-video:#7030a0;--wseg-other:#c4a1e3}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--wseg-banner:#3987e5;--wseg-video:#8f45c7;--wseg-other:#cfb0ee}}
-:root[data-theme="dark"]{--wseg-banner:#3987e5;--wseg-video:#8f45c7;--wseg-other:#cfb0ee}
+:root{--wseg-banner:#2a78d6;--wseg-video:#7030a0;--wseg-playable:#e87ba4;--wseg-other:#c4a1e3}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--wseg-banner:#3987e5;--wseg-video:#8f45c7;--wseg-playable:#d55181;--wseg-other:#cfb0ee}}
+:root[data-theme="dark"]{--wseg-banner:#3987e5;--wseg-video:#8f45c7;--wseg-playable:#d55181;--wseg-other:#cfb0ee}
 .barrow .fill.stack{display:flex;gap:2px;background:none;border-radius:0}
 .fill.stack .wseg{height:100%;min-width:2px}
 .fill.stack .wseg:last-child{border-radius:0 4px 4px 0}
 .wseg.banner,.mix i.banner{background:var(--wseg-banner)}
 .wseg.video,.mix i.video{background:var(--wseg-video)}
 .wseg.other,.mix i.other{background:var(--wseg-other)}
+.wseg.playable,.mix i.playable{background:var(--wseg-playable)}
 .mixrow{display:grid;grid-template-columns:200px 1fr;gap:12px;padding:0 6px 6px;margin-top:-4px}
 .mix{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
 .mix i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
@@ -2829,7 +2830,261 @@ window.NOV_TASKS = [
     }
     return { depts: depts.filter(d => d.items.length), items, brands, stats };
   };
+
+  // Playable ads (UA only, from the creatives list): one card per game, weight = playable versions
+  const LIST_URL = 'https://docs.google.com/spreadsheets/d/1FSu7kpaOtbd-lgKm1_jshLseK_v-q9BiST6g3IEN9S4/edit?gid=438477462';
+  window.addPlayables = function (model, games) {
+    const ua = model.depts.find(d => d.name === 'UA');
+    if (!ua || !games || !games.length) return;
+    for (const g of games) {
+      const brand = g.brand === 'RP' ? 'RP' : 'LS';
+      const catId = `${ua.id}|${brand}|Playables Ad`;
+      let cat = ua.categories.find(c => c.id === catId);
+      if (!cat) { cat = { id: catId, name: 'Playables Ad', brand, dept: ua, items: [] }; ua.categories.push(cat); }
+      const item = {
+        title: `${brand} - ${g.game}`, href: LIST_URL, img: '', brand, brandName: model.brands[brand], dept: ua, cat,
+        qty: g.versions, note: `${g.files} files · ${g.networks} networks`
+      };
+      cat.items.push(item); ua.items.push(item); model.items.push(item);
+      ua.total += g.versions;
+      model.stats.files = (model.stats.files || 0) + g.versions;
+    }
+  };
 })();
+
+</script>
+<script>
+// Playable ads per month, from Marketing Creatives List 2026 (generated 2026-11-25).
+window.PLAYABLES = {
+    "sep-oct":  [
+                    {
+                        "game":  "LS 1 Base",
+                        "brand":  "LS",
+                        "versions":  7,
+                        "files":  49,
+                        "networks":  7,
+                        "studio":  "Sett"
+                    },
+                    {
+                        "game":  "Meow Mummy",
+                        "brand":  "LS",
+                        "versions":  3,
+                        "files":  24,
+                        "networks":  8,
+                        "studio":  "Quiiiz"
+                    },
+                    {
+                        "game":  "Mummy Mia",
+                        "brand":  "LS",
+                        "versions":  3,
+                        "files":  24,
+                        "networks":  8,
+                        "studio":  "Quiiiz"
+                    },
+                    {
+                        "game":  "Mad Hit Gold",
+                        "brand":  "LS",
+                        "versions":  3,
+                        "files":  24,
+                        "networks":  8,
+                        "studio":  "Quiiiz"
+                    },
+                    {
+                        "game":  "Coin Up Volcanoes",
+                        "brand":  "LS",
+                        "versions":  3,
+                        "files":  24,
+                        "networks":  8,
+                        "studio":  "Quiiiz"
+                    },
+                    {
+                        "game":  "4 Gold Carts",
+                        "brand":  "LS",
+                        "versions":  3,
+                        "files":  24,
+                        "networks":  8,
+                        "studio":  "Quiiiz"
+                    },
+                    {
+                        "game":  "Piggyfest Bonanza",
+                        "brand":  "LS",
+                        "versions":  3,
+                        "files":  24,
+                        "networks":  8,
+                        "studio":  "Quiiiz"
+                    },
+                    {
+                        "game":  "Voltage Blitz",
+                        "brand":  "LS",
+                        "versions":  3,
+                        "files":  24,
+                        "networks":  8,
+                        "studio":  "Quiiiz"
+                    },
+                    {
+                        "game":  "Lucky Penny",
+                        "brand":  "LS",
+                        "versions":  3,
+                        "files":  24,
+                        "networks":  8,
+                        "studio":  "Quiiiz"
+                    },
+                    {
+                        "game":  "Thunder Coins",
+                        "brand":  "LS",
+                        "versions":  3,
+                        "files":  24,
+                        "networks":  8,
+                        "studio":  "Quiiiz"
+                    },
+                    {
+                        "game":  "12 Masks Of Fire Drums",
+                        "brand":  "LS",
+                        "versions":  3,
+                        "files":  24,
+                        "networks":  8,
+                        "studio":  "Quiiiz"
+                    },
+                    {
+                        "game":  "4 Pots Riches",
+                        "brand":  "LS",
+                        "versions":  3,
+                        "files":  24,
+                        "networks":  8,
+                        "studio":  "Quiiiz"
+                    },
+                    {
+                        "game":  "3 Hot Teapots",
+                        "brand":  "LS",
+                        "versions":  3,
+                        "files":  24,
+                        "networks":  8,
+                        "studio":  "Quiiiz"
+                    },
+                    {
+                        "game":  "King Of The Sky Hit The Bonus",
+                        "brand":  "RP",
+                        "versions":  7,
+                        "files":  42,
+                        "networks":  6,
+                        "studio":  "Sett"
+                    }
+                ],
+    "nov":  [
+                {
+                    "game":  "Zeus Reels",
+                    "brand":  "LS",
+                    "versions":  7,
+                    "files":  56,
+                    "networks":  8,
+                    "studio":  "Sett"
+                },
+                {
+                    "game":  "Cyber Samurai Strike",
+                    "brand":  "LS",
+                    "versions":  7,
+                    "files":  56,
+                    "networks":  8,
+                    "studio":  "Sett"
+                },
+                {
+                    "game":  "Coin Up Volcanoes",
+                    "brand":  "LS",
+                    "versions":  7,
+                    "files":  56,
+                    "networks":  8,
+                    "studio":  "Sett"
+                },
+                {
+                    "game":  "Super Miner Mega Gems",
+                    "brand":  "LS",
+                    "versions":  3,
+                    "files":  24,
+                    "networks":  8,
+                    "studio":  "Quiiiz"
+                },
+                {
+                    "game":  "Voltage Blitz Zeus Up",
+                    "brand":  "LS",
+                    "versions":  3,
+                    "files":  21,
+                    "networks":  7,
+                    "studio":  "Quiiiz"
+                },
+                {
+                    "game":  "King Of The Sky",
+                    "brand":  "LS",
+                    "versions":  3,
+                    "files":  24,
+                    "networks":  8,
+                    "studio":  "Quiiiz"
+                },
+                {
+                    "game":  "Jokers Luck Respin",
+                    "brand":  "LS",
+                    "versions":  3,
+                    "files":  24,
+                    "networks":  8,
+                    "studio":  "Quiiiz"
+                },
+                {
+                    "game":  "3x Catch",
+                    "brand":  "LS",
+                    "versions":  3,
+                    "files":  24,
+                    "networks":  8,
+                    "studio":  "Quiiiz"
+                },
+                {
+                    "game":  "Wolf Prime Deluxe",
+                    "brand":  "LS",
+                    "versions":  3,
+                    "files":  24,
+                    "networks":  8,
+                    "studio":  "Quiiiz"
+                },
+                {
+                    "game":  "Aztec Fire",
+                    "brand":  "LS",
+                    "versions":  2,
+                    "files":  16,
+                    "networks":  8,
+                    "studio":  "Quiiiz"
+                },
+                {
+                    "game":  "Aztec Fire 2",
+                    "brand":  "LS",
+                    "versions":  1,
+                    "files":  8,
+                    "networks":  8,
+                    "studio":  "Quiiiz"
+                },
+                {
+                    "game":  "Load The Train",
+                    "brand":  "RP",
+                    "versions":  7,
+                    "files":  56,
+                    "networks":  8,
+                    "studio":  "Sett"
+                },
+                {
+                    "game":  "Charge The Battery",
+                    "brand":  "RP",
+                    "versions":  7,
+                    "files":  56,
+                    "networks":  8,
+                    "studio":  "Sett"
+                },
+                {
+                    "game":  "3 Gates Of Pyramid Two Collectors",
+                    "brand":  "RP",
+                    "versions":  7,
+                    "files":  56,
+                    "networks":  8,
+                    "studio":  "Sett"
+                }
+            ]
+};
 
 </script>
 <script>
@@ -2850,6 +3105,7 @@ const MONTHS = [
   { key: 'sep-oct', label: 'Sep – Oct 2026', sub: 'Our work through September–October', model: SEPOCT },
   { key: 'nov', label: 'Nov 2026', sub: 'Our work through November', model: window.buildMonth(window.NOV_TASKS || [], SEPOCT.brands) }
 ];
+MONTHS.forEach(m => window.addPlayables(m.model, (window.PLAYABLES || {})[m.key]));
 let month = MONTHS[0];
 let D = month.model;
 const state = { q: '', dept: 'all', brand: 'all' };
@@ -2884,9 +3140,10 @@ const bars = document.getElementById('bars');
 const tip = document.getElementById('tip');
 let sumTotal = 1;
 // UA workload split: videos = every mp4 type, banners = banner/static design, other = CPP, icons, landing pages, Figma…
-const KINDS = [['banner', 'Banners'], ['video', 'Videos'], ['other', 'Other']];
-const kindOf = it => /video|cinemagraph/i.test(it.cat.name) ? 'video' : /banner|^design$/i.test(it.cat.name.trim()) ? 'banner' : 'other';
-const mix = d => { const m = { banner: 0, video: 0, other: 0 }; d.items.forEach(it => { m[kindOf(it)] += it.qty || 1; }); return m; };
+const KINDS = [['banner', 'Banners'], ['video', 'Videos'], ['playable', 'Playables'], ['other', 'Other']];
+const kindOf = it => /video|cinemagraph/i.test(it.cat.name) ? 'video' : /playable/i.test(it.cat.name) ? 'playable'
+  : /banner|^design$/i.test(it.cat.name.trim()) ? 'banner' : 'other';
+const mix = d => { const m = { banner: 0, video: 0, playable: 0, other: 0 }; d.items.forEach(it => { m[kindOf(it)] += it.qty || 1; }); return m; };
 // hero text, stats and the workload chart for the selected month
 function renderHeader() {
   document.getElementById('months').innerHTML = MONTHS.map(m =>
@@ -2957,7 +3214,7 @@ function renderControls() {
 
 // within a department: new videos first, then the other videos, then banners, then everything else;
 // each creative type shows LS then RP before moving on to the next type
-const typeRank = c => /new video/i.test(c.name) ? 0 : /video|cinemagraph/i.test(c.name) ? 1 : /banner/i.test(c.name) ? 2 : 3;
+const typeRank = c => /new video/i.test(c.name) ? 0 : /video|cinemagraph/i.test(c.name) ? 1 : /banner/i.test(c.name) ? 2 : /playable/i.test(c.name) ? 3 : 4;
 const isVideo = it => /video|cinemagraph/i.test(it.cat.name);
 
 // any task with "Campaign" in its Asana name (and the tasks sharing its campaign name) is pulled out
@@ -2978,7 +3235,7 @@ function campaigns(d) {
   return [...out.values()].sort((a, b) => brandRank(a) - brandRank(b));
 }
 const card = (it, sub) => `<a class="card" href="${esc(it.href)}" target="_blank" rel="noopener" title="${esc(it.title)}">
-          <div class="thumb">${it.img ? `<img src="${it.img}" alt="" loading="lazy">` : `<span class="ph">${esc(it.cat.name)}</span>`}${(it.qty || 1) > 1 || (sub != null && isVideo(it)) ? `<span class="qty">${isVideo(it) ? '▶ ' : ''}${it.qty || 1} ${isVideo(it) ? (/new video/i.test(it.cat.name) ? 'new video' : 'video') : 'design'}${(it.qty || 1) > 1 ? 's' : ''}</span>` : ''}<span class="open">Open ↗</span></div>
+          <div class="thumb">${it.img ? `<img src="${it.img}" alt="" loading="lazy">` : `<span class="ph">${esc(it.cat.name)}</span>`}${(it.qty || 1) > 1 || (sub != null && isVideo(it)) ? `<span class="qty">${isVideo(it) ? '▶ ' : ''}${it.qty || 1} ${isVideo(it) ? (/new video/i.test(it.cat.name) ? 'new video' : 'video') : /playable/i.test(it.cat.name) ? 'playable' : 'design'}${(it.qty || 1) > 1 ? 's' : ''}</span>` : ''}<span class="open">Open ↗</span></div>
           <div class="meta"><div class="title">${hl(it.title)}</div>
           <div class="foot"><span class="badge ${it.brand}">${it.brand}</span><span>${sub != null ? esc(sub) : it.slide ? 'Slide ' + it.slide : esc(it.note || '')}</span></div></div></a>`;
 const brandRank = c => c.brand === 'LS' ? 0 : 1;
